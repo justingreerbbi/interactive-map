@@ -50,6 +50,11 @@
  Heat Map Features
 
  * Ability to filter all voters, primary voters, poltical party, general voters, voters likely to vote, etc.
+
+ ## Installation
+ The system requires PHP > 7.4 to run. 
+
+ `composer require rubix/ml`
  
 
 
