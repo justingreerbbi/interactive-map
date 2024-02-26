@@ -38,3 +38,18 @@
  to help customize a solution for your City or Political Campaign. 
 
  My email is located at the top of each file in this repo.
+
+ ## ToDo's
+ 
+ * Add in address/name search box to get the cordinates to display othe information
+ * Add in Modal or response when a location is clicked.
+ * Add the ability to switch layers between ward, precinct, heatmap.
+ * Add flat database wrapper for easy to use/integration into just about any server system.
+ * Add layer to show party affialiation based on yearly primaries that are tracked for wards and prcincts.
+
+ Heat Map Features
+
+ * Ability to filter all voters, primary voters, poltical party, general voters, voters likely to vote, etc.
+ 
+
+

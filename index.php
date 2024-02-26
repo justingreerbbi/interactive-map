@@ -435,6 +435,7 @@
         map.setFog({}); // Set the default atmosphere style
     });
 
+    // Map on load event
     map.on('load', () => {
         map.addLayer({
             'id': 'wards',
@@ -450,7 +451,18 @@
             }
         });
 
-        var isInside = pointInsidePolygon([-81.585379, 41.021429]);
+        // Simple map event to get the coordinates of the clicked point
+        map.on('click', function(e) {
+            var coordinates = e.lngLat;
+
+            var ward = wardInfo([coordinates.lng, coordinates.lat]);
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML('Ward Info: <br/>' + ward)
+                .addTo(map);
+        });
+
+        //var isInside = pointInsidePolygon([-81.585379, 41.021429]);
 
         //console.log(wards_geojson.features[0].geometry
         //    .coordinates);
@@ -459,22 +471,19 @@
         //console.log('Is Inside Ward 1: ', isInside);
     });
 
-    function pointInsidePolygon(point) {
+    function wardInfo(point) {
+        //var wardInfo = null;
         for (var i = 0; i < wards_geojson.features.length; i++) {
             var outline = wards_geojson.features[i].geometry.coordinates;
 
             var pt = turf.point(point);
             var poly = turf.polygon(outline);
 
-            //console.log(poly);
+            if (turf.booleanPointInPolygon(pt, poly.geometry)) {
+                return wards_geojson.features[i].properties.name;
+            }
 
-            console.log(wards_geojson.features[i].properties.name + ' = ' + turf.booleanPointInPolygon(pt, poly
-                .geometry));
-
-            // Give Feedback in the point fall into a specific polygon
-            //if (turf.booleanPointInPolygon(pt, poly.geometry)) {
-            //    console.log('Found in: ', wards_geojson.features[i].properties.name);
-            //}
+            //return wardInfo;
         }
     }
     </script>
