@@ -3,11 +3,17 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Load data from an external GeoJSON file</title>
+    <title>Interactive Map - Justin Greer - Barberton, Ohio 44203</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js">
+    </script>
+    <link rel="stylesheet"
+          href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+          type="text/css">
 
     <style>
     body {
@@ -20,6 +26,7 @@
         top: 0;
         bottom: 0;
         width: 100%;
+        cursor: crosshair !important;
     }
     </style>
 </head>
@@ -35,7 +42,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 1',
-                    color: 'red'
+                    color: 'red',
+                    rep: 'Councilwoman Hager',
+                    email: 'jhager@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 style: {
                     fill: 'red'
@@ -116,7 +126,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 2',
-                    color: 'blue'
+                    color: 'blue',
+                    rep: 'Councilman Cheatham',
+                    email: 'kcheatham@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 geometry: {
                     type: 'Polygon',
@@ -158,7 +171,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 3',
-                    color: 'green'
+                    color: 'green',
+                    rep: 'Councilman Griffin',
+                    email: 'sgriffin@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 geometry: {
                     type: 'Polygon',
@@ -248,7 +264,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 4',
-                    color: 'yellow'
+                    color: 'yellow',
+                    rep: 'Councilwoman Beck',
+                    email: 'ebeck@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 geometry: {
                     type: 'Polygon',
@@ -300,7 +319,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 5',
-                    color: 'purple'
+                    color: 'purple',
+                    rep: 'Councilwoman Gearhart',
+                    email: 'rgearhart@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 geometry: {
                     type: 'Polygon',
@@ -338,7 +360,10 @@
                 type: 'Feature',
                 properties: {
                     name: 'Ward 6',
-                    color: 'orange'
+                    color: 'orange',
+                    rep: 'Councilman Harris',
+                    email: 'mharris@cityofbarberton.com',
+                    phone: '330-848-6719',
                 },
                 geometry: {
                     type: 'Polygon',
@@ -426,10 +451,21 @@
     const map = new mapboxgl.Map({
         container: 'map', // container ID
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/mapbox/streets-v12', // style URL
+        style: 'mapbox://styles/mapbox/standard', // style URL
         zoom: 12, // starting zoom
         center: [-81.60512, 41.01283] // // starting center in [lng, lat]
     });
+
+    map.addControl(
+        new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            country: 'us',
+            // Add in filter for Barberton Only.
+        }),
+        'top-left'
+    );
+
 
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
@@ -447,7 +483,7 @@
             'layout': {},
             'paint': {
                 'fill-color': ['get', 'color'],
-                'fill-opacity': 0.2
+                'fill-opacity': 0.1
             }
         });
 
@@ -456,10 +492,22 @@
             var coordinates = e.lngLat;
 
             var ward = wardInfo([coordinates.lng, coordinates.lat]);
+            console.log(ward);
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML('Ward Info: <br/>' + ward)
+                .setHTML(ward.name + '<br/>' +
+                    ward.rep + '<br/>' +
+                    ward.email + '<br/>' +
+                    ward.phone + '<br/>')
                 .addTo(map);
+        });
+
+        // Add search event listener
+        map.on('geocoder.result', (e) => {
+            // Handle search result
+            const result = e.result;
+            console.log(result);
+            // Do something with the search result
         });
 
         //var isInside = pointInsidePolygon([-81.585379, 41.021429]);
@@ -472,19 +520,24 @@
     });
 
     function wardInfo(point) {
-        //var wardInfo = null;
+        var wardInfo = {
+            name: '',
+            color: '',
+            rep: ''
+        };
+
         for (var i = 0; i < wards_geojson.features.length; i++) {
             var outline = wards_geojson.features[i].geometry.coordinates;
-
             var pt = turf.point(point);
             var poly = turf.polygon(outline);
 
             if (turf.booleanPointInPolygon(pt, poly.geometry)) {
-                return wards_geojson.features[i].properties.name;
+                wardInfo = wards_geojson.features[i].properties;
             }
-
-            //return wardInfo;
         }
+
+        // Return populated ward info
+        return wardInfo;
     }
     </script>
 
